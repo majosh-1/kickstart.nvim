@@ -98,6 +98,18 @@ vim.g.have_nerd_font = false
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- My Added Opts
+vim.opt.termguicolors = true
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'python',
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.softtabstop = 4
+    vim.opt_local.expandtab = true
+  end,
+})
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -163,6 +175,25 @@ vim.opt.confirm = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+
+-- My Added Keymaps
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Does Half page up and centers' })
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Does Half page down and centers' })
+vim.keymap.set('n', '<Tab>', '>>', { desc = 'In Normal, Always Tab' })
+vim.keymap.set('n', '<S-Tab>', '<<', { desc = 'In Normal, Always Shift-Tab' })
+vim.keymap.set('x', '<Tab>', '>gv', { desc = 'In Visual, Always Tab' })
+vim.keymap.set('x', '<S-Tab>', '<gv', { desc = 'In Visual, Always Shift-Tab' })
+
+-- Map Ctrl+C to copy to system clipboard in visual mode
+vim.keymap.set('v', '<C-c>', '"+y', { noremap = true, silent = true })
+
+-- Map Ctrl+V to paste from system clipboard in normal and insert modes
+vim.keymap.set('n', '<C-v>', '"+p', { noremap = true, silent = true })
+vim.keymap.set('i', '<C-v>', '<Esc>"+pi', { noremap = true, silent = true })
+
+-- Map Ctrl+/ in normal and visual mode
+vim.keymap.set('n', '<C-_>', 'gcc', { remap = true }) -- Ctrl+/ sends <C-_>
+vim.keymap.set('v', '<C-_>', 'gc', { remap = true })
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -303,34 +334,34 @@ require('lazy').setup({
         -- If you are using a Nerd Font: set icons.keys to an empty table which will use the
         -- default which-key.nvim defined Nerd Font icons, otherwise define a string table
         keys = vim.g.have_nerd_font and {} or {
-          Up = '<Up> ',
-          Down = '<Down> ',
-          Left = '<Left> ',
-          Right = '<Right> ',
-          C = '<C-…> ',
-          M = '<M-…> ',
-          D = '<D-…> ',
-          S = '<S-…> ',
-          CR = '<CR> ',
-          Esc = '<Esc> ',
-          ScrollWheelDown = '<ScrollWheelDown> ',
-          ScrollWheelUp = '<ScrollWheelUp> ',
-          NL = '<NL> ',
-          BS = '<BS> ',
-          Space = '<Space> ',
-          Tab = '<Tab> ',
-          F1 = '<F1>',
-          F2 = '<F2>',
-          F3 = '<F3>',
-          F4 = '<F4>',
-          F5 = '<F5>',
-          F6 = '<F6>',
-          F7 = '<F7>',
-          F8 = '<F8>',
-          F9 = '<F9>',
-          F10 = '<F10>',
-          F11 = '<F11>',
-          F12 = '<F12>',
+          -- Up = '<Up> ',
+          -- Down = '<Down> ',
+          -- Left = '<Left> ',
+          -- Right = '<Right> ',
+          -- C = '<C-…> ',
+          -- M = '<M-…> ',
+          -- D = '<D-…> ',
+          -- S = '<S-…> ',
+          -- CR = '<CR> ',
+          -- Esc = '<Esc> ',
+          -- ScrollWheelDown = '<ScrollWheelDown> ',
+          -- ScrollWheelUp = '<ScrollWheelUp> ',
+          -- NL = '<NL> ',
+          -- BS = '<BS> ',
+          -- Space = '<Space> ',
+          -- Tab = '<Tab> ',
+          -- F1 = '<F1>',
+          -- F2 = '<F2>',
+          -- F3 = '<F3>',
+          -- F4 = '<F4>',
+          -- F5 = '<F5>',
+          -- F6 = '<F6>',
+          -- F7 = '<F7>',
+          -- F8 = '<F8>',
+          -- F9 = '<F9>',
+          -- F10 = '<F10>',
+          -- F11 = '<F11>',
+          -- F12 = '<F12>',
         },
       },
 
@@ -350,7 +381,7 @@ require('lazy').setup({
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
 
-  { -- Fuzzy Finder (files, lsp, etc)
+  { -- Fuzzy Finder (files, l p, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
     dependencies = {
@@ -418,6 +449,12 @@ require('lazy').setup({
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
+
+      -- My Added Telescope Maps
+      vim.keymap.set('n', '<leader>ff', function()
+        builtin.find_files { cwd = vim.fn.getcwd() }
+      end, { desc = '[F]ind [F]iles in CWD' })
+
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
@@ -663,9 +700,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -879,6 +916,7 @@ require('lazy').setup({
       ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
         styles = {
+          keywords = { italic = false }, -- My Added get rid of italics
           comments = { italic = false }, -- Disable italics in comments
         },
       }
@@ -886,7 +924,7 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'tokyonight'
     end,
   },
 
@@ -968,9 +1006,12 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+
+  -- My Added Plugins
+  require 'custom/plugins/init',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
@@ -987,19 +1028,19 @@ require('lazy').setup({
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
     icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
+      -- cmd = '⌘',
+      -- config = '🛠',
+      -- event = '📅',
+      -- ft = '📂',
+      -- init = '⚙',
+      -- keys = '🗝',
+      -- plugin = '🔌',
+      -- runtime = '💻',
+      -- require = '🌙',
+      -- source = '📄',
+      -- start = '🚀',
+      -- task = '📌',
+      -- lazy = '💤 ',
     },
   },
 })
