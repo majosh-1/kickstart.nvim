@@ -183,6 +183,7 @@ vim.keymap.set('n', '<Tab>', '>>', { desc = 'In Normal, Always Tab' })
 vim.keymap.set('n', '<S-Tab>', '<<', { desc = 'In Normal, Always Shift-Tab' })
 vim.keymap.set('x', '<Tab>', '>gv', { desc = 'In Visual, Always Tab' })
 vim.keymap.set('x', '<S-Tab>', '<gv', { desc = 'In Visual, Always Shift-Tab' })
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
 
 -- Map Ctrl+C to copy to system clipboard in visual mode
 vim.keymap.set('v', '<C-c>', '"+y', { noremap = true, silent = true })
