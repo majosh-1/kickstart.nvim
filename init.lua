@@ -177,13 +177,16 @@ vim.opt.confirm = true
 --  See `:help vim.keymap.set()`
 
 -- My Added Keymaps
+vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
 vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Does Half page up and centers' })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Does Half page down and centers' })
 vim.keymap.set('n', '<Tab>', '>>', { desc = 'In Normal, Always Tab' })
 vim.keymap.set('n', '<S-Tab>', '<<', { desc = 'In Normal, Always Shift-Tab' })
 vim.keymap.set('x', '<Tab>', '>gv', { desc = 'In Visual, Always Tab' })
 vim.keymap.set('x', '<S-Tab>', '<gv', { desc = 'In Visual, Always Shift-Tab' })
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+
+vim.keymap.set('i', '<Tab>', '<Tab>', { noremap = true })
+vim.keymap.set('i', '<S-Tab>', '<C-d>', { noremap = true })
 
 -- Map Ctrl+C to copy to system clipboard in visual mode
 vim.keymap.set('v', '<C-c>', '"+y', { noremap = true, silent = true })
@@ -210,6 +213,12 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+
+-- For toggling auto save
+vim.api.nvim_set_keymap('n', '<leader>n', ':ASToggle<CR>', { desc = 'Toggles using autosave' })
+
+-- Create a terminal on the right
+vim.api.nvim_set_keymap('n', '<leader>tt', ':vnew +term | vert res 70<Enter>a', { desc = 'Creates a terminal on the right' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -269,6 +278,7 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
+
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -431,11 +441,19 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              ['<C-n>'] = require('telescope.actions').move_selection_next,
+              ['<C-p>'] = require('telescope.actions').move_selection_previous,
+            },
+            n = {
+              ['<C-n>'] = require('telescope.actions').move_selection_next,
+              ['<C-p>'] = require('telescope.actions').move_selection_previous,
+            },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -455,6 +473,14 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>ff', function()
         builtin.find_files { cwd = vim.fn.getcwd() }
       end, { desc = '[F]ind [F]iles in CWD' })
+
+      vim.keymap.set('n', '<leader>fs', function()
+        require('telescope.builtin').lsp_document_symbols()
+      end, { desc = '[F]ind [S]ymbols in file(also gO)' })
+
+      vim.keymap.set('n', '<leader>fd', function()
+        require('telescope.builtin').lsp_document_symbols { symbols = { 'function' } }
+      end, { desc = '[F]ind [D]efinitions in file' })
 
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
@@ -772,7 +798,7 @@ require('lazy').setup({
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>fb',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
@@ -866,6 +892,9 @@ require('lazy').setup({
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
         preset = 'default',
+
+        ['<Tab>'] = false,
+        ['<S-Tab>'] = false,
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -975,7 +1004,22 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'python',
+        'cpp',
+        'rust',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1009,7 +1053,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
