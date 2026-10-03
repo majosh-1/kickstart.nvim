@@ -101,7 +101,6 @@ vim.g.have_nerd_font = false
 -- My Added Opts
 vim.opt.termguicolors = true
 vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'python',
   callback = function()
     vim.opt_local.tabstop = 4
     vim.opt_local.shiftwidth = 4
@@ -482,6 +481,26 @@ require('lazy').setup({
         require('telescope.builtin').lsp_document_symbols { symbols = { 'function' } }
       end, { desc = '[F]ind [D]efinitions in file' })
 
+      vim.keymap.set('n', '<leader>dc', function()
+        local line = vim.fn.line '.' - 1
+        local diagnostics = vim.diagnostic.get(0, { lnum = line })
+
+        if #diagnostics == 0 then
+          print 'No diagnostic on this line'
+          return
+        end
+
+        local filename = vim.fn.expand '%:t'
+        local messages = vim.tbl_map(function(diagnostic)
+          return string.format('%s:%d: %s', filename, line + 1, diagnostic.message)
+        end, diagnostics)
+
+        vim.fn.setreg('+', table.concat(messages, '\n'))
+        print 'Diagnostic copied to clipboard'
+      end, {
+        desc = '[D]iagnostic [C]opy',
+      })
+
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
@@ -516,6 +535,17 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+
+  -- My Added Plugins
+  {
+    'christoomey/vim-tmux-navigator',
+    lazy = false,
+    -- Navigate tmux + vim splits seamlessly
+    vim.keymap.set('n', '<C-h>', '<cmd>TmuxNavigateLeft<CR>', { desc = 'Go to left window' }),
+    vim.keymap.set('n', '<C-j>', '<cmd>TmuxNavigateDown<CR>', { desc = 'Go to below window' }),
+    vim.keymap.set('n', '<C-k>', '<cmd>TmuxNavigateUp<CR>', { desc = 'Go to above window' }),
+    vim.keymap.set('n', '<C-l>', '<cmd>TmuxNavigateRight<CR>', { desc = 'Go to right window' }),
   },
 
   -- LSP Plugins
@@ -728,9 +758,10 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         clangd = {},
-        -- gopls = {},
+        gopls = {},
         pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
+        vtsls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
