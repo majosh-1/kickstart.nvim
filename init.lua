@@ -761,10 +761,7 @@ require('lazy').setup({
         gopls = {},
         pyright = {},
         rust_analyzer = {},
-<<<<<<< HEAD
-=======
         vtsls = {},
->>>>>>> f8e75f37c0b7185fcf08af6a3d50d10600e3b62d
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
